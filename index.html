@@ -1,0 +1,354 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Flutter Codelab / Coding Roulette: Architecting your Flutter Apps Workshop (pt.3): Creating the Details Page</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/codelab-elements/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14"></google-codelab-analytics>
+  <google-codelab codelab-gaid=""
+                  id="flutter-codelab-cr2-3"
+                  title="Flutter Codelab / Coding Roulette: Architecting your Flutter Apps Workshop (pt.3): Creating the Details Page"
+                  environment="web"
+                  feedback-link="https://romanjustcodes.web.app">
+    
+      <google-codelab-step label="Overview" duration="0">
+        <h2 is-upgraded>What You&#39;ll Build in this Workshop:</h2>
+<ul>
+<li>Create a Details Page for our 3-Page Flutter App.</li>
+<li>Common Flutter Layout strategies using just core widgets</li>
+<li>Creating custom Flutter widgets and achieve widget composition</li>
+<li>Import network images</li>
+<li>Using Material Icon fonts</li>
+<li>State Management using Provider to decouple Business Logic of Components (BLoC)</li>
+<li>Animations in Flutter using core Animated Widgets and Tweens</li>
+<li>Stateful and Stateless Widgets</li>
+</ul>
+<p class="image-container"><img alt="Details Page" src="img/edf0fe6e9366a139.gif"></p>
+<p>In this part of the workshop (pt.3) we will tackle the details page (see image above). If you are here, make sure you have completed <a href="https://romanejaquez.github.io/flutter-codelab-cr2-1" target="_blank">pt.1</a> and <a href="https://romanejaquez.github.io/flutter-codelab-cr2-2" target="_blank">pt.2</a> of this series.</p>
+<p>Let&#39;s check out a schematic view of what we&#39;ll be tackling in this codelab:</p>
+<p class="image-container"><img alt="Details Page" src="img/35334e043cf90a37.png"></p>
+<p>We will tackle the layout in sections: the <strong>AppBar</strong>, then split the <strong>Scaffold</strong> body into two sections: top (where the image is) and bottom (where the rest of the content is).</p>
+<p>Let&#39;s start!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Setting up the Details Page Scaffold" duration="0">
+        <p>We&#39;ll start by setting up the core page widget that will encapsulate the details page functionality and we&#39;ll call it <strong>DonutShopDetails</strong>. We&#39;ll start making it as a <strong>StatefulWidget</strong> since later on we&#39;ll add <strong>AnimationController</strong> and make use ticker mixins (<strong><em>SingleTickerProviderStateMixin</em></strong>) so create the custom widget class (using the 2-class approach for <strong>StatefulWidget</strong> widgets):</p>
+<p class="image-container"><img alt="Details Page" src="img/a9cfef84aa53a4fa.png"></p>
+<p>Notice inside the <strong>DonutShopDetails</strong> page I&#39;m returning a <a href="https://api.flutter.dev/flutter/material/Scaffold-class.html" target="_blank"><strong>Scaffold</strong></a> to set up the foundation of my full-blown page.</p>
+<h2 is-upgraded>Set up the App to always land on the DonutShopDetails (For Development Purposes only)</h2>
+<aside class="special"><p>Since we&#39;ll be focusing only on the development of the details page for now, let&#39;s point the application to always land on it for the duration of this codelab.</p>
+</aside>
+<p>Go to the <strong>runApp</strong> method at the top, and in the routes, comment out the initial route (&#34;/&#34;, the one that returns the <strong>SplashPage</strong>), and copy it, making its destination our newly created page <strong>DonutShopDetails</strong>, that way when we do hot reload, we end up on that page.</p>
+<p class="image-container"><img alt="Details Page" src="img/6cb80e2527ff6ab1.png"></p>
+<p>With that in place, it&#39;s time to lay out the rest of the pieces, starting from the <strong>AppBar</strong>.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Adding the Details Page App Bar" duration="0">
+        <p>We&#39;ll pretty much use the same thing we used on <a href="https://romanejaquez.github.io/flutter-codelab-cr2-2/#2" target="_blank">pt.2</a> of this series, so we&#39;ll save time and just bring it over. We will only deal with this <strong>AppBar</strong> later when we add the <strong>DonutShoppingCartBadge</strong> much later.</p>
+<p>In the <strong>DonutShopDetailsState</strong> class, set the <strong>Scaffold</strong>&#39;s *<strong>appBar</strong> property to be the <strong>AppBar</strong> we had on the <strong>DonutShopMain</strong>, as such:</p>
+<p class="image-container"><img alt="Details Page" src="img/9e73bef002ee3c14.png"></p>
+<p>Run it on DartPad to see that we&#39;re off on a good start:</p>
+<p class="image-container"><img alt="Details Page" src="img/faf174ae63f2c27a.png"></p>
+<p>That was easy! We have indeed started on the right foot! Let&#39;s keep moving!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Set Up the Scaffold&#39;s Body Layout" duration="0">
+        <p>In order to have a robust layout, a great foundation is key! We&#39;ll distribute the <strong>Scaffold</strong>&#39;s body layout as follows:</p>
+<p class="image-container"><img alt="Details Page" src="img/1d449a14dddf658d.png"></p>
+<p>Let&#39;s express the schematic view above into a tangible format.</p>
+<p>Start by setting the root of the <strong>body</strong> as a <strong>Column</strong> widget. This <strong>Column</strong> will have two widgets laid out vertically: a <strong>Container</strong> (our top region), and an <strong>Expanded</strong> widget (our bottom region); add a <strong>Column</strong> as a placeholder child to the <strong>Expanded</strong> widget since it is a requirement for it.</p>
+<p>Your code should look like this:</p>
+<p class="image-container"><img alt="Details Page" src="img/639ad28039913f44.png"></p>
+<p>That was the layout of the <strong>Scaffold</strong>&#39;s body. In the next section we will focus only on the <strong>Container</strong> (top region) of this <strong>DonutShopDetails</strong> page. Click <strong>Next</strong> to proceed.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="DonutShopDetails: Top Region" duration="0">
+        <p class="image-container"><img alt="Details Page" src="img/bab9c3025294141b.png"></p>
+<p>Let&#39;s tackle the top region in this details page.</p>
+<p>We want to achieve an offset look on the donut image, so it looks a bit off to the side (on purpose!). In order to make something go off the screen, you can use a <strong>Stack</strong> widget as the parent, and a <strong>Positioned</strong> widget, setting either the <strong>left</strong> or <strong>right</strong> property to a negative number, forcing it to go off the screen.</p>
+<p>Let&#39;s start.</p>
+<aside class="special"><p><strong>Before we proceed</strong>: we need some mocked data to supply to this page so we can populate the widgets with the data they need to render appropriately (text and images).</p>
+</aside>
+<p>In the <strong>DonutShopDetailsState</strong> class, create a new property called <strong>selectedDonut</strong>, type <strong>DonutModel</strong>. We will use it later when we bring the selected donut item from the previous page. For now we&#39;ll hardcoded from the static data in our <strong>Utils</strong> page.</p>
+<p class="image-container"><img alt="Details Page" src="img/b82202018f788084.png"></p>
+<p>In the <strong>build</strong> method, initialize it with one of the donut models off of the <strong>Utils</strong> class, as follows:</p>
+<p class="image-container"><img alt="Details Page" src="img/c3d0d14a4f4191f5.png"></p>
+<aside class="warning"><p>This is just a temporary assignment; later we&#39;ll make it more formal pulling it our of a provided service and all. Be patient!</p>
+</aside>
+<p>Great, now we&#39;re ready to move on.</p>
+<p>Inside of the <strong>Container</strong> widget, we&#39;ll set it to be, not a fixed height, but a <strong><em>calculated</em></strong> value extracted from the system based on the height of the device in which this app is being rendered, therefore we&#39;ll use <strong>MediaQuery</strong> for that. We&#39;ll make the <strong>Container</strong> half the height of the screen, as follows:</p>
+<p class="image-container"><img alt="Details Page" src="img/19facc1e05d9de73.png"></p>
+<p>As the child of that container, add a <strong>Stack</strong> widget. Set its <strong>children</strong> property to an empty array by default:</p>
+<p class="image-container"><img alt="Details Page" src="img/2a25d7ef83ee43af.png"></p>
+<p>The reason why we made the <strong>Container</strong> the immediate parent of the <strong>Stack</strong> is because the <strong>Stack</strong> inherits the dimensions of the enclosing parent (in our case the <strong>Container</strong>).</p>
+<p>Now, as the child of the <strong>Stack</strong>, add an <strong>Image.network</strong> widget (since the image is coming from a URL). Set the width to be a bit larger than the width of the device screen (1.25 should do); set the fit to <strong>BoxFit.contain</strong>, as shown below:</p>
+<p class="image-container"><img alt="Details Page" src="img/622900f2dc6af4a1.png"></p>
+<p>Running it on DartPad now, at least it shows the image - but right in the middle of the <strong>Stack</strong>. We want to achieve the off-screen effect.</p>
+<p class="image-container"><img alt="Details Page" src="img/683905354639a885.png"></p>
+<p>Here comes <strong>Positioned</strong> widget to the rescue!</p>
+<aside class="special"><p>A <strong>Positioned</strong> widget must be a direct descendant of the <strong>Stack</strong>. The <strong>Positioned</strong> widget positions the wrapping widget in regards to the parent <strong>Stack</strong> coordinates (0,0 being the very top left corner of the <strong>Stack</strong> and so on).</p>
+</aside>
+<p>Wrap the <strong>Image.network</strong> widget inside a <strong>Positioned</strong> widget. To achieve the offset look, manipulate the properties <strong>top</strong> and <strong>right</strong> accordingly - I noticed that <strong>top: -40</strong> and <strong>right: -120</strong> worked well for me, so you should try these.</p>
+<p>Your code should look like this after the change:</p>
+<p class="image-container"><img alt="Details Page" src="img/927714952680130.png"></p>
+<p>And running it once again on DartPad, should give you the following output:</p>
+<p class="image-container"><img alt="Details Page" src="img/81ab0ba710bd96b.png"></p>
+<p>Mission accomplished!!!!</p>
+<p>If you&#39;re ready to move on to the next step, where we&#39;ll be tackling the bottom region, click <strong>Next</strong>.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="DonutShopDetails: Bottom Region" duration="0">
+        <p>Let&#39;s take a look at the schematic view of the bottom region below:</p>
+<p class="image-container"><img alt="Details Page" src="img/ce354ff260d21598.png"></p>
+<p>The <strong>Expanded</strong> widget is where we&#39;ll concentrate our efforts this time. Again, we use <strong>Expanded</strong> since the framework will prioritize this region and make it occupy most of the real estate, after it allocates half of the screen to the top region as we shown earlier.</p>
+<p>We&#39;ve already laid out the <strong>Expanded</strong> widget with a <strong>Column</strong> inside, hinting that the layout will be vertical for the most part.</p>
+<p>Let&#39;s start!</p>
+<p>First things first, let&#39;s add some padding around the <strong>Column</strong> widget in order to give it some breathing room - 30px should do - as such:</p>
+<p class="image-container"><img alt="Details Page" src="img/c51c2a47c2590d13.png"></p>
+<p>Proceed to initialize the <strong>Column</strong> widget with an empty array as its <strong>children</strong> property, and ensuring its children are left align (using <strong>CrossAxisAlignment.start</strong>):</p>
+<p class="image-container"><img alt="Details Page" src="img/5ff45e5d0e1661e.png"></p>
+<p>With that in place, let&#39;s add the first row of widgets that hold the name and the favorites button.</p>
+<h2 is-upgraded>First Row: Name and Favorites</h2>
+<p>Let&#39;s add as the first child of the <strong>Column</strong> widget, a <strong>Row</strong> widget, also with its children aligned to the left, and initialized with an empty array as its <strong>children</strong> property:</p>
+<p class="image-container"><img alt="Details Page" src="img/6acedebdbbc27fdf.png"></p>
+<p>Let&#39;s focus on this <strong>Row</strong> widget for a minute. The first item in this <strong>Row</strong> is a <strong>Text</strong> widget that holds the name of the product. We want it to occupy most of the real estate in this row, so we know what to do: wrap it inside an <strong>Expanded</strong> widget.</p>
+<p>Add the following code with the specs for the <strong>Text</strong> widget as follows:</p>
+<ul>
+<li>populate the <strong>Text</strong> with the <strong>selectedDonut.name</strong> property</li>
+<li>style: add the following <strong>TextStyle</strong> to it:  <ul>
+<li>color: Utils.mainDark</li>
+<li>fontSize: 30px should do</li>
+<li>fontWeight: we want a bold look, so FontWeight.bold</li>
+</ul>
+</li>
+</ul>
+<p>Your code should look like this:</p>
+<p class="image-container"><img alt="Details Page" src="img/b0a8c739911f85b6.png"></p>
+<p>Give it a go on DartPad and run what we have so far:</p>
+<p class="image-container"><img alt="Details Page" src="img/2ce472039150d83b.png"></p>
+<p>Let&#39;s proceed with the rest. Let&#39;s add the favorite button to the right of the name. Add some breathing room between the name and the icon button using a <strong>SizedBox</strong> with a 50px width - to force the name <strong>Text</strong> widget width thus wrapping its contents a bit.</p>
+<p class="image-container"><img alt="Details Page" src="img/1e7536967f7affac.png"></p>
+<p>Now add the <strong>IconButton</strong> - this will be used for later when we implement the favorites feature. For now, add it with the following specs:</p>
+<ul>
+<li>icon: Use an <strong>Icon</strong> widget, add the <strong><em>Icons.favorite_outline</em></strong> icon</li>
+<li>color: Utils.mainDark</li>
+<li>onPressed: add an empty handler method - we&#39;ll deal with the functionality later</li>
+</ul>
+<p>Your code should look as follows:</p>
+<p class="image-container"><img alt="Details Page" src="img/d89a09b48894a416.png"></p>
+<p>Take this for a spin on DartPad, this should be the output so far:</p>
+<p class="image-container"><img alt="Details Page" src="img/5039a287b62c0242.png"></p>
+<p>Moving on - let&#39;s add some vertical spacing, thanks to the <strong>SizedBox</strong> widget. Add 10px of height right under the <strong>Row</strong> widget:</p>
+<p class="image-container"><img alt="Details Page" src="img/834cc2576731f67.png"></p>
+<p>Nice! Now let&#39;s tackle the price badge with a pill effect, which we&#39;ll accomplish by using a <strong>Container</strong> with the following specs:</p>
+<ul>
+<li>padding: 10px top and bottom, 20px left and right</li>
+<li>decoration: add a <strong>BoxDecoration</strong>, and add to it:  <ul>
+<li>color: Utils.mainDark</li>
+<li>borderRadius: 20px radius all around (***BorderRadius.circular(20))</li>
+</ul>
+</li>
+</ul>
+<p class="image-container"><img alt="Details Page" src="img/a1210696b8065b0b.png"></p>
+<p>Now add the <strong>Text</strong> label that will hold the price, as a child of the <strong>Container</strong> we just created, also with the following specs:</p>
+<ul>
+<li>populate the <strong>Text</strong> widget with the <strong>selectedDonut.price</strong> value; format the value using the utility method <strong>toStringAsFixed</strong> with two decimal places</li>
+<li>style: add <strong>TextStyle</strong> with only setting color to white</li>
+</ul>
+<p>Here&#39;s the complete code:</p>
+<p class="image-container"><img alt="Details Page" src="img/d8789ea53c30c7dc.png"></p>
+<p>Looking good so far on DartPad if you run it now:</p>
+<p class="image-container"><img alt="Details Page" src="img/d65d911364200669.png"></p>
+<p>Next up, add yet more space via a <strong>SizedBox</strong> with a 20px height:</p>
+<p class="image-container"><img alt="Details Page" src="img/f6026d31af0071eb.png"></p>
+<p>Let&#39;s populate the description of our product. This next one is easy - just feed it into a <strong>Text</strong> widget using the <strong>selectedDonut.description</strong> property; we&#39;re ok with the default styling, font sizing and all that out of the box from a text widget.</p>
+<p class="image-container"><img alt="Details Page" src="img/5768e10173e5186d.png"></p>
+<p>Quick run through DartPad as a sanity check, and then let&#39;s move on:</p>
+<p class="image-container"><img alt="Details Page" src="img/e01c95715a868539.png"></p>
+<p>So far so good. Let&#39;s do the bottom part of the details page, which is the button to add to the cart. We&#39;ll also add the functionality of this button later in the codelab where we implement the shopping cart capabilities.</p>
+<p>For now let&#39;s build a custom button.</p>
+<h2 is-upgraded>Creating a Custom Button using Core Widgets</h2>
+<p>Let&#39;s start with a plain ol&#39; <strong>Container</strong> widget as the foundation of our simple custom button; add it as the last item of the <strong>Column</strong> widget inside the <strong>Expanded</strong> widget we placed earlierd:</p>
+<p class="image-container"><img alt="Details Page" src="img/d0fece6be46210d8.png"></p>
+<aside class="special"><p>From this point forward, let&#39;s focus our attention on the <strong>Container</strong> - the next section will only show code related to it.</p>
+</aside>
+<p>We&#39;ll make this <strong>Container</strong> look like a button, so let&#39;s start with the following specs:</p>
+<ul>
+<li>margin: 20px on the top only, just to give it space</li>
+<li>alignment: center align its contents</li>
+<li>padding: 20px left and right, 10px top and bottom</li>
+<li>decoration: using a <strong>BoxDecoration</strong>, add the following:  <ul>
+<li>color: use Utils.mainDark with a 10% opacity</li>
+<li>borderRadius: add 50px of radius all around</li>
+</ul>
+</li>
+</ul>
+<p>Your code should look like this:</p>
+<p class="image-container"><img alt="Details Page" src="img/644504a838b17807.png"></p>
+<p>As the child of the <strong>Container</strong>, going by the design above, we want to add an icon, some space and then the label &#34;Add To Cart&#34;, so let&#39;s do just that. These items are laid out horizontally, so - yeah, you guessed it - we&#39;ll use a <strong>Row</strong> for that.</p>
+<p>Add a <strong>Row</strong> as the immediate child of the <strong>Container</strong>, with its alignments centered on the row&#39;s main axis. Initialize its children with an empty array by default, as such:</p>
+<p class="image-container"><img alt="Details Page" src="img/ea57db094f984e5d.png"></p>
+<p>As mentioned before, we&#39;ll be adding 3 items: an icon, a bit of spacing and a label, so let&#39;s do just that.</p>
+<p>Let&#39;s add the <strong>Icon</strong> widget, with the <strong>Icons.shopping_cart</strong> icon and assign the <strong>Utils.mainDark</strong> color to it:</p>
+<p class="image-container"><img alt="Details Page" src="img/a7a0bbf46d5945a9.png"></p>
+<p>Give it some breathing room, so add the spacing using a <strong>SizedBox</strong> with a 20px width:</p>
+<p class="image-container"><img alt="Details Page" src="img/b0ce976304bd3760.png"></p>
+<p>And last - but not least! - the label as a <strong>Text</strong> widget, with the content &#34;Add To Cart&#34;, adding a <strong>TextStyle</strong> with the color property  set to <strong>Utils.mainDark</strong>:</p>
+<p class="image-container"><img alt="Details Page" src="img/f4b17b95e96bacfc.png"></p>
+<p>Testing it one more time in DartPad and see how&#39;s looking:</p>
+<p class="image-container"><img alt="Details Page" src="img/62562077331cb700.png"></p>
+<p>Awesome! And now that our page is fully developed, let&#39;s hook it up to our <strong>DonutMainPage</strong>, that when upon the user tapping on one of the <strong>DonutCard</strong> widgets, the app will navigate to the details page, passing as context the model of the selected donut, allowing the <strong>DonutShopDetails</strong> page to display the information about the selected product appropriately.</p>
+<p>Click <strong>Next</strong> to see how this is done.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Capture the Selected Donut in the DonutService" duration="0">
+        <p>We need to establish who will be triggering the navigation from the <strong>DonutShopMain</strong> page, store the context in question - the selected donut - in a common place, then provide that context to the requesting page - the details page. We&#39;ll use the <strong>DonutService</strong> again as the holding place for this functionality, in order to decouple it from either widget, that way they can share the information in a decoupled fashion.</p>
+<p>Go to the <strong>DonutService</strong> class, and introduce a new property called <strong>selectedDonut</strong>, type <strong>DonutModel</strong>. Since at the beginning a user hasn&#39;t selected anything (only until they tap on the desired donut in the <strong>DonutList</strong> widget is that this property will be assigned a value), you can appropriately prefix it with the accesibility modifier called <a href="https://dart.dev/null-safety/understanding-null-safety#late-variables" target="_blank"><strong>late</strong></a>:</p>
+<p class="image-container"><img alt="Details Page" src="img/1e4379c656980c69.png"></p>
+<aside class="special"><p>The <strong>late</strong> modifier marks this property for delayed initialization, since by making it nullable (using the ‘?&#39;) we are implying that at some point this property may be null - a useful, meaningful value for this field, which is not the case.</p>
+</aside>
+<p>Let&#39;s now encapsulate the logic of persisting this value as well as handling the navigation to the desired route.</p>
+<p>In the same <strong>DonutService</strong>, create a method called <strong>getSelectedDonut()</strong> which will serve as a <strong><em>getter</em></strong> method or wrapper to the <strong>selectedDonut</strong> property, as such:</p>
+<p class="image-container"><img alt="Details Page" src="img/b2c4c9048c05c60a.png"></p>
+<p>Add another method to then set the selected donut. Create a method called <strong>onDonutSelected</strong>, that takes as a parameter an object of type <strong>DonutModel</strong>. The key here is the following: we&#39;ll encapsulate even the navigation to the details page once we&#39;ve ensured the <strong>selectedDonut</strong> property has been set, which guarantees that when we&#39;ve navigated to the details page (<strong>DonutShopDetails</strong>) the value will be available, as follows:</p>
+<p class="image-container"><img alt="Details Page" src="img/23643947bfdf7a8d.png"></p>
+<p>With this, we&#39;ve ensured proper encapsulation of functionality that shouldn&#39;t be on a widget. Awesome!</p>
+<p>Let&#39;s now proceed to set up the route and navigate to the details page.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Handle Navigation to the DonutShopDetails" duration="0">
+        <p>Since we&#39;ve developed the <strong>DonutShopDetails</strong> widget page, we can safely revert the changes we made at the root <strong>MaterialApp</strong> widget, where we temporarily pointed the page to the root named route (&#34;/&#34;) and instead add a dedicated route for this page, so let&#39;s do just that.</p>
+<h2 is-upgraded>Create a Dedicated Route for the DonutShopDetails</h2>
+<p>While undoing the change we made before so the root named route pointed to the details page, go ahead and add a new route, named appropriately &#34;/details&#34; and make it point to the <strong>DonutShopDetails</strong> widget page, as such:</p>
+<p class="image-container"><img alt="Details Page" src="img/4dff17fa684324de.png"></p>
+<p>Now we&#39;ll be able to navigate to this page since it has its own route!</p>
+<p>Let&#39;s add the code to capture the selection of the desired donut, plus performing the navigation.</p>
+<h2 is-upgraded>Add tapping capabilities to the <strong>DonutCard</strong></h2>
+<p>Upon the user tapping on one of the <strong>DonutCard</strong> widgets, we will capture the value, perform a navigation, and when the user is taken to the details page, the details page will efficiently pick up the stored value and display itself accordingly, See the workflow below - pretty much this is what we&#39;ll be accomplishing:</p>
+<p class="image-container"><img alt="Details Page" src="img/1e4c54bba6f622f1.png"></p>
+<p>Go to the <strong>DonutCard</strong> widget we created earlier.</p>
+<p>Wrap the current <strong>Stack</strong> widget being returned by the <strong>build</strong> method inside a <strong>GestureDetector</strong>, as such:</p>
+<p class="image-container"><img alt="Details Page" src="img/d5a7b6e0bf0174c.png"></p>
+<p>As before, we are using the <strong>GestureDetector</strong> to give this widget tapping capabilities.</p>
+<p>On the <strong>onTap</strong> event available in the <strong>GestureDetector</strong>, attach a handler. Inside, obtain a reference to the <strong>DonutService</strong> using the <strong>Provider.of</strong> instance along with the provided <strong>Context</strong>, using the <strong>listen: false</strong> option, as follows:</p>
+<p class="image-container"><img alt="Details Page" src="img/6d4a85bd2248af5d.png"></p>
+<p>With the <strong>DonutService</strong> reference in hand, call the method <strong>onDonutSelected</strong> and supply the reference to a <strong>DonutModel</strong> available in this widget called <strong>donutInfo</strong> as follows:</p>
+<p class="image-container"><img alt="Details Page" src="img/742537cc7058a1b7.png"></p>
+<p>Now, all we have to do is ensure that the <strong>DonutShopDetails</strong> page picks up the value on the other end and bind it to its internal <strong>selectedDonut</strong> property.</p>
+<p>In the <strong>DonutShopDetailsState</strong> class, inside its <strong>build</strong> method, do the same as in the <strong>DonutCard</strong> widget - pull a reference to the <strong>DonutService</strong> using the <strong>Provider.of</strong> method with the <strong>listen: false</strong> option.</p>
+<p>Then, extract the selected donut by calling the method <strong>getSelectedDonut</strong> out of the <strong>DonutService</strong> reference, and assigning it to the local property <strong>selectedDonut</strong>. No other changes required!</p>
+<p>Let&#39;s take this for a spin and confirm that the wiring is correct.</p>
+<p class="image-container"><img alt="Details Page" src="img/548759e5e73b485f.gif"></p>
+<p>Amazing work! With that we&#39;ve concluded the core functionality of the details page in this app. If you want to go the extra mile, where we&#39;ll be adding animations to this page, you can go to the bonus step by clicking <strong>Next</strong>, otherwise you&#39;re good to go!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Wrap-up" duration="0">
+        <p>Congrats in making it this far! In this codelab, we accomplished the following:</p>
+<ul>
+<li>Performed the initial setup of our DartPad environment</li>
+<li>Created our initial boilerplate startup code</li>
+<li>Created a SplashScreen widget with core widgets</li>
+<li>Created a dummy landing page (DonutShopMain) for the SplashPage widget to navigate to</li>
+<li>Introduced Futures to add a small delay before proceeding further</li>
+<li>Tapped into the navigation capabilities of Flutter</li>
+</ul>
+<p>In the <a href="https://romanejaquez.github.io/flutter-codelab-cr2-4" target="_blank">next colab</a>, we&#39;ll work on a simple shopping cart experience, while addressing more on state management, <strong>Consumer</strong> widgets and more!</p>
+<h3 is-upgraded>Please don&#39;t forget to follow me on social media:</h3>
+<ul>
+<li>On Twitter (<a href="https://www.twitter.com/drcoderz" target="_blank">@drcoderz</a>)</li>
+<li>On YouTube (<a href="https://www.youtube.com/channel/UCKsp3r1ERjCpKJtD2n5WtPg" target="_blank">Roman Just Codes</a>)</li>
+<li>On My <a href="https://romanjustcodes.web.app/#/home" target="_blank">Personal Portfolio</a></li>
+<li>On <a href="https://medium.com/@romanejaquez" target="_blank">Medium</a></li>
+<li>On <a href="https://www.linkedin.com/in/roman-jaquez-8941a424/" target="_blank">LinkedIn</a></li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="BONUS #1: Adding Rotating Animation to Donut" duration="0">
+        <p>This is just one of those little touches you give your application to make it stand out, and make it less static - totally optional though, but you&#39;ll learn how to apply explicit animations simple and quickly.</p>
+<p class="image-container"><img alt="Details Page" src="img/c65c98040b362684.gif"></p>
+<p>Let&#39;s start!</p>
+<p>Go to the <strong>DonutShopDetailsState</strong> page and let&#39;s start by adding a <a href="https://flutterbyexample.com/lesson/mixins" target="_blank"><strong>mixin</strong></a> class called <strong>SingleTickerProviderStateMixin</strong> - this is required when you have an <strong>AnimationController</strong> in your widget.</p>
+<p class="image-container"><img alt="Details Page" src="img/6be888efdf9e66e0.png"></p>
+<p>Proceed to add two properties, one of type <strong>AnimationController</strong> and another one of type <strong>Animation&lt;double&gt;</strong>:</p>
+<p class="image-container"><img alt="Details Page" src="img/13a4c23dae631910.png"></p>
+<aside class="special"><p>The <strong>AnimationController</strong> controls the animation; the <strong>Animation</strong> then executes it.</p>
+</aside>
+<p>Initialize both <strong>AnimationController</strong> and <strong>Animation</strong> by overriding the <strong>initState</strong> method in this <strong>StatefulWidget</strong>.</p>
+<p>For the <strong>AnimationController</strong>, we set its <strong>duration</strong> to 20 secs, and assigned the <strong>vsync</strong> property to <strong>this</strong> - this means since we&#39;ve made the current widget a <strong>SingleTickerProvider</strong>, we pass ourselves in. Calling the <strong>repeat</strong> method on the controller means this animation will repeat forever, infinitely - until this widget gets destroyed.</p>
+<p>Your code inside the <strong>initState</strong> method should look like this:</p>
+<p class="image-container"><img alt="Details Page" src="img/30258f9b6076288a.png"></p>
+<p>Let&#39;s recap on what we did. For the <strong>Animation</strong> (<strong><em>rotationAnimation</em></strong>) we use a <strong>Tween</strong> object, pass a <strong><em>begin</em></strong> value of 0 and an <strong><em>end</em></strong> of 1 - this means make the animation completed its whole cycle, and since the <strong>AnimationController</strong> is in <strong>repeat</strong>, after it concludes, it starts again. Therefore we invoke the <strong>Tween</strong> object&#39;s <strong><em>animate</em></strong> method, where pass the controller as the <strong>parent</strong>, as well as the animation&#39;s curve (in our case, we want it linear, hence the <strong><em>Curves.linear</em></strong> option).</p>
+<aside class="warning"><p>Don&#39;t forget to clean up after yourself in the <strong>dispose</strong> method. It is good practice always to disposed of those components that take up lots of precious resources (i.e. animation controllers).</p>
+</aside>
+<p>Override the <strong>dispose</strong> method and invoke the <strong>dispose</strong> method on the animation controller created above:</p>
+<p class="image-container"><img alt="Details Page" src="img/e3ae2cdf51705378.png"></p>
+<p>Now let&#39;s implement the rotation on the donut image, by using a <strong>RotationTransition</strong> - one of the available explicit animation widgets in the library. Locate the <strong>Image.network</strong> widget, inside the <strong>Positioned</strong> widget, and wrap the image inside the <strong>RotationTransition</strong> widget, passing as its <strong>turns</strong> property the <strong>rotationAnimation</strong> instance we created earlier, making this the direct child of the <strong>Positioned</strong> widget instead:</p>
+<p class="image-container"><img alt="Details Page" src="img/502e9684d885a2d0.png"></p>
+<p>And with that, you have a nice, slick, minimalist spinning animation - make sure not to make your users dizzy!!! Enjoy!</p>
+<p class="image-container"><img alt="Details Page" src="img/c65c98040b362684.gif"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="BONUS #2: Adding Hero Images" duration="0">
+        <p class="image-container"><img alt="Details Page" src="img/e4e8e40c68d00ddc.gif"></p>
+<p>As an extra bonus, we&#39;ll implement <a href="https://flutter.dev/docs/development/ui/animations/hero-animations" target="_blank"><strong>Hero</strong></a> animation, which is a type of widget that allows you to animate a widget from one screen to another. It&#39;s simple to implement. Just mark the widgets at both ends of the transition as a Hero image using the same tag and you&#39;re done!</p>
+<p>In our case, our source hero widget would be the donut image inside the <strong>DonutCard</strong> widget, and the destination hero widget will be the image in the <strong>DonutShopDetails</strong>, giving the illusion of the same image sliding from one screen to the other, as shown above.</p>
+<p>Let&#39;s start!</p>
+<p>Go to the <strong>DonutCard</strong> widget, and locate the <strong>Image.network</strong> inside the <strong>Align</strong> widget. Wrap the <strong>Image</strong> widget inside a <strong>Hero</strong> widget, and set its tag to be the product name (<strong><em>donutInfo.name</em></strong>)</p>
+<aside class="special"><p>Both source hero tag and destination hero tag as well as the images must match for the animation work effectively</p>
+</aside>
+<p class="image-container"><img alt="Details Page" src="img/afc1d075c95ed666.png"></p>
+<p>With that in place, now to to the <strong>DonutShopDetails</strong> page, where our destination hero should be set.</p>
+<p>Locate the <strong>RotationTransition</strong> widget that&#39;s currently wrapping the <strong>Image.network</strong> widget. Instead of wrapping the image directly, we are wrapping the whole rotation so as the <strong>Hero</strong> to apply to the animation as well, therefore place the <strong>Hero</strong> as a direct child of <strong>Positioned</strong>, wrapping <strong>RotationTransition</strong> as well. Set its <strong>tag</strong> to be the <strong>selectedDonut.name</strong> which matches in tag with the <strong>DonutCard</strong>&#39;s <strong>donutInfo.name</strong>:</p>
+<p class="image-container"><img alt="Details Page" src="img/23a0959f660e4525.png"></p>
+<p>Running what we have so far in DartPad, you should see the full animation sequence, starting from the landing page, tapping on a card, going to the details page. Looks flawless!!!</p>
+<p>Thanks for making it this far. If you completed both of the bonus labs, now you know how to add that extra special ingredient to your apps to make them stand out of the rest, with very little effort!</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/codelab-elements/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/prettify.js"></script>
+  <script src="https://storage.googleapis.com/codelab-elements/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>
