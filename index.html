@@ -113,6 +113,8 @@
 <aside class="special"><p>A <strong>Positioned</strong> widget must be a direct descendant of the <strong>Stack</strong>. The <strong>Positioned</strong> widget positions the wrapping widget in regards to the parent <strong>Stack</strong> coordinates (0,0 being the very top left corner of the <strong>Stack</strong> and so on).</p>
 </aside>
 <p>Wrap the <strong>Image.network</strong> widget inside a <strong>Positioned</strong> widget. To achieve the offset look, manipulate the properties <strong>top</strong> and <strong>right</strong> accordingly - I noticed that <strong>top: -40</strong> and <strong>right: -120</strong> worked well for me, so you should try these.</p>
+<aside class="special"><p>A quick strategy to avoid clipping of your widgets by the parent <strong>Stack</strong> is by setting its <strong><em>clipBehavior</em></strong> to <strong>Clip.none</strong>, which ensures that no clipping / chopping of your content occurs.</p>
+</aside>
 <p>Your code should look like this after the change:</p>
 <p class="image-container"><img alt="Details Page" src="img/927714952680130.png"></p>
 <p>And running it once again on DartPad, should give you the following output:</p>
@@ -1001,6 +1003,7 @@ class _DonutShopDetailsState extends State&lt;DonutShopDetails&gt;
           Container(
             height: MediaQuery.of(context).size.height / 2,
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
                 Positioned(
                   top: -40,
